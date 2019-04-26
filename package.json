@@ -1,0 +1,11 @@
+{
+  "name": "flexe-utils",
+  "description": "Common Utils for Flexe project.",
+  "version": "0.0.1",
+  "private": true,
+  "main": "flexe-utils.js",
+  "dependencies": {
+    "aws-sdk": "^2.365.0",
+    "node-fetch": "^2.3.0"
+  }
+}
