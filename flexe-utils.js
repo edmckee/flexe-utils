@@ -68,6 +68,9 @@ module.exports = {
                 let rows = await knex.select('Items')
                     .from('ServiceConfig')
                     .where({customerId: customerId});
+
+                console.log("rows = " + JSON.stringify(rows));
+
                 rows.Items.forEach(a => SETTINGS[a.name] = a.value);
 
                 console.log("SETTINGS:" + JSON.stringify(SETTINGS));
