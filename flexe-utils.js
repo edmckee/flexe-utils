@@ -47,27 +47,36 @@ let FLEXE_STATUS = {
 
 
 module.exports = {
-    init: async() => {
+    init: async(customerId) => {
         for (let k in process.env) {
             SETTINGS[k] = process.env[k];
         }
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async(resolve, reject) => {
             let params = {
                 TableName: "ServiceConfig"
             };
 
-            module.exports.DynamoDBScan(params).then((result) => {
+            try
+            {
+                //get global config from DynamoDB
+                let result = await module.exports.DynamoDBScan(params);
                 result.Items.forEach(a => SETTINGS[a.name] = a.value);
-                resolve(SETTINGS);
-            }).catch((error) => {
-                reject(error);
-            });
 
+                //get customer specific config from mysql
+                let knex = module.exports.GetKnexDBConnection();
+                let rows = await knex.select('Items')
+                    .from('ServiceConfig')
+                    .where({customerId: customerId});
+                rows.Items.forEach(a => SETTINGS[a.name] = a.value);
 
-
-            console.log("SETTINGS:" + JSON.stringify(SETTINGS));
-
+                console.log("SETTINGS:" + JSON.stringify(SETTINGS));
+                return resolve(SETTINGS);
+            }
+            catch(error) {
+                console.log("Error Init(): " + error);
+                return reject(error);
+            }
         });
     },
     Settings: SETTINGS,
