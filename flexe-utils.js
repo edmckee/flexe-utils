@@ -408,6 +408,19 @@ module.exports = {
                 resolve(true);
             }
         });
+    },
+    GetKnexDBConnection: () => {
+        const knex = require('knex')({
+            client: 'mysql2',
+            connection: {
+                host : module.exports.getSetting("mysql_connect_url"),
+                user : module.exports.getSetting("mysql_user"),
+                password : module.exports.getSetting("mysql_pwd"),
+                database : module.exports.getSetting("mysql_db")
+            }
+        });
+
+        return knex;
     }
     
 };
