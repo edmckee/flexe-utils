@@ -64,6 +64,8 @@ module.exports = {
                 reject(error);
             });
 
+
+
             console.log("SETTINGS:" + JSON.stringify(SETTINGS));
 
         });
