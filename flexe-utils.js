@@ -71,8 +71,14 @@ module.exports = {
 
                 console.log("rows = " + JSON.stringify(rows));
 
-                if(rows.length > 0)
+                if(rows.length > 0) {
                     rows[0].Items.forEach(a => SETTINGS[a.name] = a.value);
+                    SETTINGS["customerId"] = customerId;
+                }
+                else
+                {
+                    throw new Error("Customer not found");
+                }
 
                 console.log("SETTINGS:" + JSON.stringify(SETTINGS));
                 return resolve(SETTINGS);
