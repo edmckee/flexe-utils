@@ -71,7 +71,8 @@ module.exports = {
 
                 console.log("rows = " + JSON.stringify(rows));
 
-                rows[0].Items.forEach(a => SETTINGS[a.name] = a.value);
+                if(rows.length > 0)
+                    rows[0].Items.forEach(a => SETTINGS[a.name] = a.value);
 
                 console.log("SETTINGS:" + JSON.stringify(SETTINGS));
                 return resolve(SETTINGS);
