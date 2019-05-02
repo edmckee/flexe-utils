@@ -93,10 +93,11 @@ module.exports = {
     getSetting: (key, defaultValue) => {
         return SETTINGS[key] ? SETTINGS[key] : defaultValue;
     },
-    getAPIKeyHeader: () => {
+    getAPIKeyHeader: (customerId) => {
         let header = {
             "x-api-key": module.exports.getSetting("AWS_API_KEY", ""),
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "customerId": customerId
         };
         
         return header;
@@ -108,14 +109,14 @@ module.exports = {
             'Content-Type': 'application/json',
         }
     }),
-    putShopifyOrderStatus: (id, status) => {
+    putShopifyOrderStatus: (customerId, id, status) => {
         return new Promise(async(resolve, reject) => {
             try {
                 let url = module.exports.getSetting("ShopifyOrdersAPIURL") + "/" + id;
                 let body = {
                     "order_status": status
                 };
-                let header = module.exports.getAPIKeyHeader();
+                let header = module.exports.getAPIKeyHeader(customerId);
 
                 await module.exports.UrlPut(url, body, header);
                 resolve(true);
@@ -126,14 +127,14 @@ module.exports = {
             }
         });
     },
-    putFlexeOrderStatus: (id, status) => {
+    putFlexeOrderStatus: (customerId, id, status) => {
         return new Promise(async(resolve, reject) => {
             try {
                 let url = module.exports.getSetting("FlexeOrdersAPIURL") + "/" + id;
                 let body = {
                     "order_status": status
                 };
-                let header = module.exports.getAPIKeyHeader();
+                let header = module.exports.getAPIKeyHeader(customerId);
 
                 await module.exports.UrlPut(url, body, header);
                 resolve(true);
