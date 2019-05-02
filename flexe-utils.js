@@ -13,7 +13,7 @@ let STATUS = {
     QUEUE_ERR: "QUEUE_ERR",
     FLEXE_QUEUE: "FLEXE_QUEUE",
     FLEXE_QUEUE_ERR: "FLEXE_QUEUE_ERR",
-    PO:"PO",
+    PO: "PO",
     PO_ERR: "PO_ERR",
     COMPLETE: "COMPLETE",
     COMPLETE_ERR: "COMPLETE_ERR",
@@ -33,7 +33,7 @@ let FLEXE_STATUS = {
     QUEUE_ERR: "QUEUE_ERR",
     FLEXE: "FLEXE",
     FLEXE_ERR: "FLEXE_ERR",
-    PO:"PO",
+    PO: "PO",
     PO_ERR: "PO_ERR",
     INVENTORY_ERR: "INVENTORY_ERR",
     BACKORDER: "BACKORDER",
@@ -54,18 +54,17 @@ let KNEX_PARAMS = {
 
 
 module.exports = {
-    init: async(customerId) => {
+    init: async (customerId) => {
         for (let k in process.env) {
             SETTINGS[k] = process.env[k];
         }
 
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             let params = {
                 TableName: "ServiceConfig"
             };
 
-            try
-            {
+            try {
                 //get global config from DynamoDB
                 let result = await module.exports.DynamoDBScan(params);
                 result.Items.forEach(a => SETTINGS[a.name] = a.value);
@@ -76,19 +75,16 @@ module.exports = {
                     .from('ServiceConfig')
                     .where({customerId: customerId});
 
-                if(rows.length > 0) {
+                if (rows.length > 0) {
                     rows[0].Items.forEach(a => SETTINGS[a.name] = a.value);
                     SETTINGS["customerId"] = customerId;
-                }
-                else
-                {
+                } else {
                     throw new Error("Customer not found");
                 }
 
                 console.log("SETTINGS:" + JSON.stringify(SETTINGS));
                 return resolve(SETTINGS);
-            }
-            catch(error) {
+            } catch (error) {
                 console.log("Error Init(): " + error);
                 return reject(error);
             }
@@ -107,7 +103,7 @@ module.exports = {
             "Content-Type": "application/json",
             "customerId": customerId
         };
-        
+
         return header;
     },
     RESP_STR: (err, res) => (null, {
@@ -118,7 +114,7 @@ module.exports = {
         }
     }),
     putShopifyOrderStatus: (customerId, id, status) => {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 let url = module.exports.getSetting("ShopifyOrdersAPIURL") + "/" + id;
                 let body = {
@@ -128,15 +124,14 @@ module.exports = {
 
                 await module.exports.UrlPut(url, body, header);
                 resolve(true);
-            }
-            catch (err) {
+            } catch (err) {
                 console.error(err);
                 resolve(true);
             }
         });
     },
     putFlexeOrderStatus: (customerId, id, status) => {
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 let url = module.exports.getSetting("FlexeOrdersAPIURL") + "/" + id;
                 let body = {
@@ -146,8 +141,7 @@ module.exports = {
 
                 await module.exports.UrlPut(url, body, header);
                 resolve(true);
-            }
-            catch (err) {
+            } catch (err) {
                 console.error(err);
                 resolve(true);
             }
@@ -206,13 +200,12 @@ module.exports = {
             console.info("SnsSend:params:", snsParams);
 
             let sns = new AWS.SNS();
-            sns.publish(snsParams, function(err, result) {
+            sns.publish(snsParams, function (err, result) {
                 if (err) {
                     console.error("SnsSend:", err, err.stack);
                     reject(err);
 
-                }
-                else {
+                } else {
                     console.log("SnsSend:result: " + JSON.stringify(result));
                     resolve(true);
                 }
@@ -226,12 +219,11 @@ module.exports = {
 
             console.info("DynamoDBGet:params:", params);
 
-            dynamo.get(params, function(err, result) {
+            dynamo.get(params, function (err, result) {
                 if (err) {
                     console.error("DynamoDBGet:", err, err.stack);
                     reject(err);
-                }
-                else {
+                } else {
                     console.log("DynamoDBGet:result: " + JSON.stringify(result));
                     resolve(result);
                 }
@@ -245,14 +237,13 @@ module.exports = {
 
             console.info("DynamoDBScan:params:", params);
 
-            let data = { Items: [], Count: 0, ScannedCount: 0 };
+            let data = {Items: [], Count: 0, ScannedCount: 0};
 
-            let scan_callback = async function(err, result) {
+            let scan_callback = async function (err, result) {
                 if (err) {
                     console.error("DynamoDBScan:", err, err.stack);
                     reject(err);
-                }
-                else {
+                } else {
                     console.log("DynamoDBScan:result: " + JSON.stringify(result));
 
                     data.Items = data.Items.concat(result.Items);
@@ -265,8 +256,7 @@ module.exports = {
                         console.log("Scanning for more...");
                         params.ExclusiveStartKey = result.LastEvaluatedKey;
                         await dynamo.scan(params, scan_callback);
-                    }
-                    else {
+                    } else {
                         resolve(data);
                     }
                 }
@@ -278,16 +268,15 @@ module.exports = {
     DynamoDBPut: (params) => {
         return new Promise((resolve, reject) => {
 
-            var dynamo = new AWS.DynamoDB.DocumentClient({ "convertEmptyValues": true });
+            var dynamo = new AWS.DynamoDB.DocumentClient({"convertEmptyValues": true});
 
             console.info("DynamoDBPut:params:", params);
 
-            dynamo.put(params, function(err, result) {
+            dynamo.put(params, function (err, result) {
                 if (err) {
                     console.error("DynamoDBPut:", err, err.stack);
                     reject(err);
-                }
-                else {
+                } else {
                     console.log("DynamoDBPut:result: " + JSON.stringify(result));
                     resolve("SUCCESS");
                 }
@@ -297,16 +286,15 @@ module.exports = {
     DynamoDBUpdate: (params) => {
         return new Promise((resolve, reject) => {
 
-            var dynamo = new AWS.DynamoDB.DocumentClient({ "convertEmptyValues": true });
+            var dynamo = new AWS.DynamoDB.DocumentClient({"convertEmptyValues": true});
 
             console.info("DynamoDBUpdate:params:", params);
 
-            dynamo.update(params, function(err, result) {
+            dynamo.update(params, function (err, result) {
                 if (err) {
                     console.error("DynamoDBUpdate:", err, err.stack);
                     reject(err);
-                }
-                else {
+                } else {
                     console.log("DynamoDBUpdate:result: " + JSON.stringify(result));
                     resolve("SUCCESS");
                 }
@@ -320,12 +308,11 @@ module.exports = {
 
             console.info("DynamoDBDelete:params:", params);
 
-            dynamo.delete(params, function(err, result) {
+            dynamo.delete(params, function (err, result) {
                 if (err) {
                     console.error("DynamoDBDelete:", err, err.stack);
                     reject(err);
-                }
-                else {
+                } else {
                     console.log("DynamoDBDelete:result: " + JSON.stringify(result));
                     resolve("SUCCESS");
                 }
@@ -335,39 +322,35 @@ module.exports = {
     DynamoDBTransactWrite: (params) => {
         return new Promise((resolve, reject) => {
 
-            var dynamo = new AWS.DynamoDB.DocumentClient({ "convertEmptyValues": true });
+            var dynamo = new AWS.DynamoDB.DocumentClient({"convertEmptyValues": true});
 
             console.info("DynamoDBTransactWrite:params:", params);
 
-            dynamo.transactWrite(params, function(err, result) {
+            dynamo.transactWrite(params, function (err, result) {
                 if (err) {
                     //check for transaction conflict
                     if (err.message.includes("TransactionConflict")) {
                         console.error("DynamoDBTransactWrite:TransactionConflict trying again...");
                         //try again
-                        dynamo.transactWrite(params, function(err, result) {
+                        dynamo.transactWrite(params, function (err, result) {
                             if (err) {
                                 if (err.message.includes("TransactionConflict")) {
                                     console.error("DynamoDBTransactWrite:TransactionConflict ", err, err.stack);
                                     reject(err);
-                                }
-                                else {
+                                } else {
                                     console.error("DynamoDBTransactWrite:", err, err.stack);
                                     reject(err);
                                 }
-                            }
-                            else {
+                            } else {
                                 console.log("DynamoDBTransactWrite:result: " + JSON.stringify(result));
                                 resolve("SUCCESS");
                             }
                         });
-                    }
-                    else {
+                    } else {
                         console.error("DynamoDBTransactWrite:", err, err.stack);
                         reject(err);
                     }
-                }
-                else {
+                } else {
                     console.log("DynamoDBTransactWrite:result: " + JSON.stringify(result));
                     resolve("SUCCESS");
                 }
@@ -381,14 +364,13 @@ module.exports = {
 
             console.info("DynamoDBQuery:params:", params);
 
-            let data = { Items: [], Count: 0, ScannedCount: 0 };
+            let data = {Items: [], Count: 0, ScannedCount: 0};
 
-            let query_callback = async function(err, result) {
+            let query_callback = async function (err, result) {
                 if (err) {
                     console.error("DynamoDBQuery:", err, err.stack);
                     reject(err);
-                }
-                else {
+                } else {
                     console.log("DynamoDBQuery:result: " + JSON.stringify(result));
 
                     data.Items = data.Items.concat(result.Items);
@@ -401,8 +383,7 @@ module.exports = {
                         console.log("Scanning for more...");
                         params.ExclusiveStartKey = result.LastEvaluatedKey;
                         await dynamo.query(params, query_callback);
-                    }
-                    else {
+                    } else {
                         resolve(data);
                     }
                 }
@@ -412,17 +393,17 @@ module.exports = {
         });
     },
     Alert: (orderid, message, exception, share) => {
-        return new Promise(async (resolve, reject)=>{
+        return new Promise(async (resolve, reject) => {
             let data = {
                 orderid, message
             };
-            if(share) data.share=true;
-            if(exception) data.exception = exception;
+            if (share) data.share = true;
+            if (exception) data.exception = exception;
             try {
-                console.log('Alert',orderid, message, module.exports.getSetting('AlertAPIURL'));
-                await module.exports.UrlPost(module.exports.getSetting('AlertAPIURL'),data,module.exports.getAPIKeyHeader());
+                console.log('Alert', orderid, message, module.exports.getSetting('AlertAPIURL'));
+                await module.exports.UrlPost(module.exports.getSetting('AlertAPIURL'), data, module.exports.getAPIKeyHeader());
                 resolve(true);
-            } catch(err) {
+            } catch (err) {
                 console.error(err);
                 resolve(true);
             }
@@ -432,13 +413,13 @@ module.exports = {
         const knex = require('knex')({
             client: 'mysql2',
             connection: {
-                host : module.exports.getSetting("mysql_connect_url"),
-                user : module.exports.getSetting("mysql_user"),
-                password : module.exports.getSetting("mysql_pwd"),
-                database : module.exports.getSetting("mysql_db")
+                host: module.exports.getSetting("mysql_connect_url"),
+                user: module.exports.getSetting("mysql_user"),
+                password: module.exports.getSetting("mysql_pwd"),
+                database: module.exports.getSetting("mysql_db")
             }
         });
-        knex.on('query-response', function(response, obj, builder) {
+        knex.on('query-response', function (response, obj, builder) {
             console.log("DB QUERY: " + builder.toString());
             console.log("DB RESULT: " + JSON.stringify(response));
         })
@@ -462,19 +443,9 @@ module.exports = {
         });
     },
     WrapKnexResponse: (rows) => {
-        if(rows.length == 0)
-            return "{}";
-        else if(rows.length == 1) {
-            let resp = {
-                "Item": rows[0]
-            };
-            return resp;
-        }
-        else if(rows.length > 1) {
-            let resp = {
-              "Items": rows
-            };
-            return resp;
-        }
+        let resp = {
+            "Items": rows
+        };
+        return resp;
     }
 };
