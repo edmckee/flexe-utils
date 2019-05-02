@@ -108,15 +108,6 @@ module.exports = {
             'Content-Type': 'application/json',
         }
     }),
-    CORS_RESP_STR: (err, res) => (null, {
-        statusCode: err ? '400' : '200',
-        body: err ? err.message : res,
-         headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials' : true
-        }
-    }),
     putShopifyOrderStatus: (id, status) => {
         return new Promise(async(resolve, reject) => {
             try {
@@ -444,6 +435,21 @@ module.exports = {
         })
 
         return knex;
+    },
+    WrapKnexResponse: (rows) => {
+        if(rows.length == 0)
+            return "{}";
+        else if(rows.length == 1) {
+            let resp = {
+                "Item": rows[0]
+            };
+            return resp;
+        }
+        else if(rows.length > 1) {
+            let resp = {
+              "Items": rows
+            };
+            return resp;
+        }
     }
-    
 };
