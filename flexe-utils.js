@@ -440,6 +440,10 @@ module.exports = {
                 database : module.exports.getSetting("mysql_db")
             }
         });
+        knex.on('query-response', function(response, obj, builder) {
+            console.log("DB QUERY: " + builder.toString());
+            console.log("DB RESULT: " + JSON.stringify(response));
+        })
 
         return knex;
     }
