@@ -97,6 +97,7 @@ module.exports = {
     Settings: SETTINGS,
     Status: STATUS,
     FlexeStatus: FLEXE_STATUS,
+    KnexParams: KNEX_PARAMS,
     getSetting: (key, defaultValue) => {
         return SETTINGS[key] ? SETTINGS[key] : defaultValue;
     },
