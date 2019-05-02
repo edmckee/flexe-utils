@@ -437,6 +437,22 @@ module.exports = {
 
         return knex;
     },
+    KnexSimpleQuery: (table, columns, where, orderBy) => {
+        return new Promise(async (resolve, reject) => {
+            let knex = module.exports.GetKnexDBConnection();
+            knex.select(columns)
+                .from(table)
+                .where(where)
+                .orderBy(orderBy)
+                .then(function (rows) {
+                    resolve(module.exports.WrapKnexResponse(rows));
+                })
+                .catch(function (error) {
+                    console.error(error);
+                    reject(error);
+                });
+        });
+    },
     WrapKnexResponse: (rows) => {
         if(rows.length == 0)
             return "{}";
