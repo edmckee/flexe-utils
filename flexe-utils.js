@@ -45,6 +45,13 @@ let FLEXE_STATUS = {
     CANCELED_ERR: "CANCELED_ERR"
 };
 
+let KNEX_PARAMS = {
+    table: "",
+    columns: [],
+    where: {},
+    orderBy: []
+};
+
 
 module.exports = {
     init: async(customerId) => {
@@ -437,13 +444,13 @@ module.exports = {
 
         return knex;
     },
-    KnexSimpleQuery: (table, columns, where, orderBy) => {
+    KnexSimpleQuery: (params) => {
         return new Promise(async (resolve, reject) => {
             let knex = module.exports.GetKnexDBConnection();
-            knex.select(columns)
-                .from(table)
-                .where(where)
-                .orderBy(orderBy)
+            knex.select(params.columns)
+                .from(params.table)
+                .where(params.where)
+                .orderBy(params.orderBy)
                 .then(function (rows) {
                     resolve(module.exports.WrapKnexResponse(rows));
                 })
