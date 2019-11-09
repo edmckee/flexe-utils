@@ -410,20 +410,26 @@ module.exports = {
         });
     },
     GetKnexDBConnection: () => {
+
+        let host = module.exports.getSetting("mysql_connect_url");
+        let user = module.exports.getSetting("mysql_user");
+        let database = module.exports.getSetting("mysql_db");
+        let password = module.exports.getSetting("mysql_pwd");
+        console.log(host, user, database)
         const knex = require('knex')({
             client: 'mysql2',
             connection: {
-                host: module.exports.getSetting("mysql_connect_url"),
-                user: module.exports.getSetting("mysql_user"),
-                password: module.exports.getSetting("mysql_pwd"),
-                database: module.exports.getSetting("mysql_db")
-            }
+                host,
+                user,
+                password,
+                database
+            },
+            debug: true
         });
         knex.on('query-response', function (response, obj, builder) {
             console.log("DB QUERY: " + builder.toString());
             console.log("DB RESULT: " + JSON.stringify(response));
-        })
-
+        });
         return knex;
     },
     KnexSimpleQuery: (params) => {
